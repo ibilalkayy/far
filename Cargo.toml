@@ -1,0 +1,8 @@
+[package]
+name = "far"
+version = "0.1.1"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.37", features = ["derive"] }
+walkdir = "2.5.0"
