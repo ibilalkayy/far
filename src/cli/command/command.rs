@@ -14,5 +14,14 @@ pub struct Far {
     pub replace: String,
 
     #[clap(short, long)]
-    pub target: String,
+    pub target: Option<String>,
+
+    #[clap(long)]
+    pub dry_run: bool,
+
+    #[clap(long)]
+    pub confirm: bool,
+
+    #[clap(long)]
+    pub ignore_case: bool
 }
