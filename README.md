@@ -16,13 +16,13 @@
 ```bash
 git clone https://github.com/ibilalkayy/far.git
 cd far
-cargo build
+cargo build --release
 ````
 
 ## Usage
 
 ```bash
-far --find "Foo" --replace "Bar" --tartget "path/to/file"
+far --find "Foo" --replace "Bar" --tartget "./src/**/*.rs"
 ```
 
 ## 📄 License
