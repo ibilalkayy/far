@@ -16,7 +16,7 @@
 ```bash
 git clone https://github.com/ibilalkayy/far.git
 cd far
-cargo build --release
+cargo build
 ````
 
 ## Usage
