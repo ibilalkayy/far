@@ -7,21 +7,27 @@ use clap::Parser;
     about = "far stands for Find And Replace — a fast, flexible command-line tool to search and replace text across files and folders."
 )]
 pub struct Far {
+    /// Find the text to be changed
     #[clap(short, long)]
-    pub find: String,
+    pub find: Option<String>,
 
+    /// Write the text to be replaced with
     #[clap(short, long)]
     pub replace: String,
 
+    /// Mention the target path to find the text there
     #[clap(short, long)]
     pub target: Option<String>,
 
+    /// Show the replaced text before writing it
     #[clap(long)]
     pub dry_run: bool,
 
+    /// Assure the text before replacing it
     #[clap(long)]
     pub confirm: bool,
 
-    #[clap(long)]
-    pub ignore_case: bool
+    /// Use expressions for finding the text
+    #[clap(short = 'e', long)]
+    pub regex: Option<String>,
 }
