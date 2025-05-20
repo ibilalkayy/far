@@ -1,9 +1,10 @@
 [package]
 name = "far"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.37", features = ["derive"] }
+dirs = "6.0.0"
 regex = "1.11.1"
 walkdir = "2.5.0"

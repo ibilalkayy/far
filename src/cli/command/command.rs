@@ -30,4 +30,8 @@ pub struct Far {
     /// Use expressions for finding the text
     #[clap(short = 'e', long)]
     pub regex: Option<String>,
+
+    /// Include the files that are matching the globe pattern
+    #[clap(long)]
+    pub backup: String,
 }
