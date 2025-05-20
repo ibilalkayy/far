@@ -2,48 +2,61 @@ use crate::{
     cli::command::command::Far,
     usecases::{dry_run::dry_run_text, find::find_text, regex::find_regex, replace::replace_text},
 };
-use clap::Parser;
 
-pub fn control_args() {
-    let args: Far = Far::parse();
+impl Far {
+    pub fn control_args(self) {
+        if self.dry_run {
+            self.handle_dry_run();
+        } else if let Some(path) = &self.target {
+            self.find_the_text(path);
+        } else {
+            eprintln!("Err: use either --target to write or --dry-run to preview.");
+        }
+    }
 
-    if args.dry_run {
-        if let Some(path) = args.target.clone() {
-            if let Some(find) = args.find {
-                dry_run_text(path, find, args.replace);
+    fn handle_dry_run(self) {
+        if let Some(path) = &self.target {
+            if let Some(find) = &self.find {
+                dry_run_text(path, find, &self.replace);
+            } else if let Some(regex) = &self.regex {
+                if let Some(regex_found) = find_regex(&regex, &path) {
+                    // self.handle_replacing(path, &regex_found);
+                    dry_run_text(path, &regex_found, &self.replace);
+                } else {
+                    eprintln!("Err: '{}' is not found in the given file", regex);
+                }
             } else {
-                eprintln!("Err: value is not provided to find the text");
+                eprintln!("Err: gmail value is not provided to find the text");
             }
         } else {
-            eprintln!("Dry run needs a --target file path to preview.");
+            eprintln!("Err: dry run needs a --target file path to preview.");
         }
-    } else if let Some(path) = args.target.clone() {
-        if let Some(find) = args.find.clone() {
-            let text_found = find_text(find.clone(), path.clone());
+    }
+
+    fn handle_replacing(&self, path: &String, find_text: &String) {
+        if self.confirm {
+            replace_text(path, find_text, &self.replace);
+        } else {
+            eprintln!("Err: use --confirm to replace the text");
+        }
+    }
+
+    fn find_the_text(&self, path: &String) {
+        if let Some(find) = &self.find {
+            let text_found = find_text(find, path);
             if text_found {
-                if args.confirm {
-                    replace_text(path, find, args.replace);
-                } else {
-                    eprintln!("Use --confirm to replace the text")
-                }
+                self.handle_replacing(path, find);
             } else {
-                eprintln!("Err: '{}' is not found in the given file", find.clone());
+                eprintln!("Err: '{}' is not found in the given file", find);
             }
-        } else if let Some(regex) = args.regex.clone() {
-            if let Some(result) = find_regex(regex.clone(), path.clone()) {
-                if args.confirm {
-                    println!("Regex text: {}", result);
-                    replace_text(path, result, args.replace);
-                } else {
-                    eprintln!("Use --confirm to replace the text");
-                }
+        } else if let Some(regex) = &self.regex {
+            if let Some(regex_found) = find_regex(&regex, &path) {
+                self.handle_replacing(path, &regex_found);
             } else {
-                eprintln!("Err: '{}' is not found in the given file", regex.clone());
+                eprintln!("Err: '{}' is not found in the given file", regex);
             }
         } else {
             eprintln!("Err: value is not provided to find the text");
         }
-    } else {
-        eprintln!("Nothing to do. Use either --target to write or --dry-run to preview.");
     }
 }

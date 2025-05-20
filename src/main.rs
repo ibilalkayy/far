@@ -1,9 +1,10 @@
 mod cli;
 mod usecases;
 
-use crate::cli::controller::controller::control_args;
+use clap::Parser;
+use cli::command::command::Far;
 
 fn main() {
-    control_args();
+    let args = Far::parse();
+    args.control_args();
 }
-// hello world this is it.
