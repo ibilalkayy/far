@@ -13,7 +13,7 @@ pub struct Far {
 
     /// Write the text to be replaced with
     #[clap(short, long)]
-    pub replace: String,
+    pub replace: Option<String>,
 
     /// Mention the target path to find the text there
     #[clap(short, long)]
