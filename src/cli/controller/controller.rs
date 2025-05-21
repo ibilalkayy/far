@@ -1,61 +1,88 @@
 use crate::{
     cli::command::command::Far,
-    usecases::{dry_run::dry_run_text, find::find_text, regex::find_regex, replace::replace_text},
+    usecases::{dry_run::dry_run_text, find::find_txt, regex::find_regex, replace::replace_text},
 };
 use std::{fs, fs::File};
 
 impl Far {
     pub fn control_args(self) {
-        if self.target.len() > 0 {
-            self.find_the_text(&self.target);
-        } else {
-            eprintln!("Err: --target flag is required to replace the text");
+        if self.target.trim().is_empty() {
+            eprintln!("Err: --target flag is required to replace, preview, or backup text");
+            return;
         }
+
+        if self.backup.is_some() {
+            if self.find.is_some() || self.replace.is_some() || self.dry_run || self.confirm {
+                eprintln!(
+                    "Err: --backup cannot be used with --find, --replace, --dry-run, or --confirm"
+                );
+                return;
+            }
+
+            // Perform only backup logic
+            if let Some(backup_file) = &self.backup {
+                self.handle_file_backup(backup_file);
+            }
+
+            return;
+        }
+
+        if self.confirm || self.dry_run {
+            if self.find.is_none() && self.regex.is_none() {
+                eprintln!("Err: --confirm or --dry-run requires either --find or --regex");
+                return;
+            }
+            if self.replace.is_none() {
+                eprintln!("Err: --confirm or --dry-run requires --replace");
+                return;
+            }
+
+            self.find_text(&self.target);
+            return;
+        }
+
+        eprintln!("Err: no valid operation selected. Use --backup, --dry-run, or --confirm");
     }
 
-    fn find_the_text(&self, path: &String) {
+    fn find_text(&self, path: &String) {
         if let Some(find) = &self.find {
-            let text_found = find_text(find, path);
+            let text_found = find_txt(find, path);
             if text_found {
                 self.handle_options(path, find);
             } else {
                 eprintln!("Err: '{}' is not found in the given file", find);
             }
         } else if let Some(regex) = &self.regex {
-            if let Some(regex_found) = find_regex(&regex, &path) {
-                self.handle_options(path, &regex_found);
+            if let Some(regex_text) = find_regex(regex, path) {
+                self.handle_options(path, &regex_text);
             } else {
                 eprintln!("Err: '{}' is not found in the given file", regex);
             }
-        } else {
-            eprintln!("Err: value is not provided to find the text");
         }
     }
 
     fn handle_options(&self, path: &String, find_text: &String) {
+        let replace_txt = self.replace.as_ref().unwrap();
+
         if self.confirm {
-            replace_text(path, find_text, &self.replace);
+            replace_text(path, find_text, replace_txt);
         } else if self.dry_run {
-            self.handle_dry_run();
-        } else if let Some(backup_file) = &self.backup {
-            self.handle_file_backup(backup_file);
-        } else {
-            eprintln!("Err: use either --confirm to replace or --dry-run to preview the text");
+            self.handle_dry_run(replace_txt);
         }
     }
 
-    fn handle_dry_run(&self) {
+    fn handle_dry_run(&self, replace_txt: &String) {
         if self.target.len() > 0 {
             if let Some(find) = &self.find {
-                dry_run_text(&self.target, find, &self.replace);
+                dry_run_text(&self.target, find, replace_txt);
             } else if let Some(regex) = &self.regex {
                 if let Some(regex_found) = find_regex(&regex, &self.target) {
-                    dry_run_text(&self.target, &regex_found, &self.replace);
+                    dry_run_text(&self.target, &regex_found, replace_txt);
                 } else {
                     eprintln!("Err: '{}' is not found in the given file", regex);
                 }
             } else {
-                eprintln!("Err: text is not provided to find it");
+                eprintln!("Err: use either --find or --regex flag to find the text");
             }
         }
     }
@@ -71,7 +98,10 @@ impl Far {
 
         if !merge_path.exists() {
             File::create_new(&merge_path).expect("Err: failed to create the file");
-            println!("Backup data is saved in the {:?} file", merge_path);
+            println!(
+                "Backup data is successfully saved in the {:?} file",
+                merge_path
+            );
         } else {
             eprintln!("Err: {:?} file already exists", merge_path);
         }
