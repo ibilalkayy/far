@@ -17,7 +17,7 @@ pub struct Far {
 
     /// Mention the target path to find the text there
     #[clap(short, long)]
-    pub target: Option<String>,
+    pub target: String,
 
     /// Show the replaced text before writing it
     #[clap(long)]
