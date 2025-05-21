@@ -6,8 +6,8 @@ use std::{fs, fs::File};
 
 impl Far {
     pub fn control_args(self) {
-        if let Some(path) = &self.target {
-            self.find_the_text(path);
+        if self.target.len() > 0 {
+            self.find_the_text(&self.target);
         } else {
             eprintln!("Err: --target flag is required to replace the text");
         }
@@ -45,12 +45,12 @@ impl Far {
     }
 
     fn handle_dry_run(&self) {
-        if let Some(path) = &self.target {
+        if self.target.len() > 0 {
             if let Some(find) = &self.find {
-                dry_run_text(path, find, &self.replace);
+                dry_run_text(&self.target, find, &self.replace);
             } else if let Some(regex) = &self.regex {
-                if let Some(regex_found) = find_regex(&regex, &path) {
-                    dry_run_text(path, &regex_found, &self.replace);
+                if let Some(regex_found) = find_regex(&regex, &self.target) {
+                    dry_run_text(&self.target, &regex_found, &self.replace);
                 } else {
                     eprintln!("Err: '{}' is not found in the given file", regex);
                 }
