@@ -33,5 +33,5 @@ pub struct Far {
 
     /// Include the files that are matching the globe pattern
     #[clap(long)]
-    pub backup: String,
+    pub backup: Option<String>,
 }
