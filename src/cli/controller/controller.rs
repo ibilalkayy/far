@@ -2,7 +2,10 @@ use crate::{
     cli::command::command::Far,
     usecases::{dry_run::dry_run_text, find::find_txt, regex::find_regex, replace::replace_text},
 };
-use std::{fs, fs::File};
+use std::{
+    fs::{self, File},
+    io::{Read, Write},
+};
 
 impl Far {
     pub fn control_args(self) {
@@ -19,11 +22,9 @@ impl Far {
                 return;
             }
 
-            // Perform only backup logic
             if let Some(backup_file) = &self.backup {
                 self.handle_file_backup(backup_file);
             }
-
             return;
         }
 
@@ -97,7 +98,18 @@ impl Far {
         }
 
         if !merge_path.exists() {
-            File::create_new(&merge_path).expect("Err: failed to create the file");
+            let mut data_file =
+                File::create_new(&merge_path).expect("Err: failed to create the file");
+            let mut data_result = File::open(&self.target).expect("Err: failed to open the file");
+            let mut file_content = String::new();
+
+            data_result.read_to_string(&mut file_content).unwrap();
+            println!("{:?}", file_content);
+
+            data_file
+                .write(file_content.as_bytes())
+                .expect("Err: faile to write into the file");
+
             println!(
                 "Backup data is successfully saved in the {:?} file",
                 merge_path
