@@ -34,4 +34,8 @@ pub struct Far {
     /// Include the files that are matching the globe pattern
     #[clap(long)]
     pub backup: Option<String>,
+
+    /// Limit the search to files with extension (e.g. rs, txt)
+    #[clap(long)]
+    pub extension: Option<String>,
 }

@@ -14,15 +14,42 @@ impl Far {
             return;
         }
 
-        if self.backup.is_some() {
-            if self.find.is_some() || self.replace.is_some() || self.dry_run || self.confirm {
-                eprintln!(
-                    "Err: --backup cannot be used with --find, --replace, --dry-run, or --confirm"
-                );
-                return;
-            }
+        if self.backup.is_some()
+            && (self.find.is_some() || self.replace.is_some() || self.dry_run || self.confirm)
+        {
+            eprintln!(
+                "Err: --backup cannot be used with --find, --replace, --dry-run, or --confirm"
+            );
+            return;
+        }
 
-            if let Some(backup_file) = &self.backup {
+        if self.extension.is_some()
+            && (self.find.is_some() || self.replace.is_some() || self.dry_run || self.confirm)
+        {
+            eprintln!(
+                "Err: --extension cannot be used with --find, --replace, --dry-run, or --confirm"
+            );
+            return;
+        }
+
+        if let Some(backup_file) = &self.backup {
+            if let Some(ext) = &self.extension {
+                if let Some(backup_file) = &self.backup {
+                    let mut text_ext = backup_file.split(".");
+                    text_ext.next().unwrap();
+                    let matched_word = text_ext.next().unwrap();
+                    let fetched_word = ext.replace(".", "");
+
+                    if fetched_word == matched_word {
+                        self.handle_file_backup(backup_file);
+                    } else {
+                        println!(
+                            "Err: '{}' file extension didn't match with the extension that you gave",
+                            backup_file
+                        );
+                    }
+                }
+            } else {
                 self.handle_file_backup(backup_file);
             }
             return;
@@ -104,8 +131,6 @@ impl Far {
             let mut file_content = String::new();
 
             data_result.read_to_string(&mut file_content).unwrap();
-            println!("{:?}", file_content);
-
             data_file
                 .write(file_content.as_bytes())
                 .expect("Err: faile to write into the file");
