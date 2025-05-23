@@ -38,15 +38,26 @@ impl Far {
                     let mut text_ext = backup_file.split(".");
                     text_ext.next().unwrap();
                     let matched_word = text_ext.next().unwrap();
-                    let fetched_word = ext.replace(".", "");
 
-                    if fetched_word == matched_word {
-                        self.handle_file_backup(backup_file);
+                    if ext.contains(".") {
+                        let fetched_word = ext.replace(".", "");
+                        if fetched_word == matched_word {
+                            self.handle_file_backup(backup_file);
+                        } else {
+                            println!(
+                                "Err: '{}' file extension didn't match with the extension that you gave",
+                                backup_file
+                            );
+                        }
                     } else {
-                        println!(
-                            "Err: '{}' file extension didn't match with the extension that you gave",
-                            backup_file
-                        );
+                        if matched_word == ext {
+                            self.handle_file_backup(backup_file);
+                        } else {
+                            println!(
+                                "Err: '{}' file extension didn't match with the extension that you gave",
+                                backup_file
+                            );
+                        }
                     }
                 }
             } else {
