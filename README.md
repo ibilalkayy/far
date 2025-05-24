@@ -22,7 +22,7 @@ cargo build --release
 ## Usage
 
 ```bash
-far --find "Foo" --replace "Bar" --tartget "./src/**/*.rs"
+far --find "Foo" --replace "Bar" --target "./src/**/*.rs"
 ```
 
 ## 📄 License
