@@ -79,30 +79,30 @@ impl Far {
         if let Some(find) = &self.find {
             if self.ignore_case {
                 let result_word = ignore_case(find, path);
-                self.handle_options(path, &result_word.to_lowercase());
+                self.handle_options(path, &result_word.to_lowercase(), true);
                 return;
             }
 
             let text_found = find_txt(find, path);
             if text_found {
-                self.handle_options(path, find);
+                self.handle_options(path, find, false);
             } else {
                 eprintln!("Err: '{}' is not found in the given file", find);
             }
         } else if let Some(regex) = &self.regex {
             if let Some(regex_text) = find_regex(regex, path) {
-                self.handle_options(path, &regex_text);
+                self.handle_options(path, &regex_text, false);
             } else {
                 eprintln!("Err: '{}' is not found in the given file", regex);
             }
         }
     }
 
-    fn handle_options(&self, path: &String, find_text: &String) {
+    fn handle_options(&self, path: &String, find_text: &String, case: bool) {
         let replace_txt = self.replace.as_ref().unwrap();
 
         if self.confirm {
-            replace_text(path, find_text, replace_txt);
+            replace_text(path, find_text, replace_txt, case);
         } else if self.dry_run {
             self.handle_dry_run(replace_txt);
         }

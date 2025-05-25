@@ -39,7 +39,7 @@ pub struct Far {
     #[clap(long)]
     pub extension: Option<String>,
 
-    // Ignore the case distinctions in text
+    /// Ignore the case distinctions in text
     #[clap(long)]
     pub ignore_case: bool,
 }

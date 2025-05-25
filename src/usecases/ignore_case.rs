@@ -3,7 +3,7 @@ use std::{
     io::{BufRead, BufReader},
 };
 
-pub fn ignore_case<'a>(find_data: &str, path: &str) -> String {
+pub fn ignore_case(find_data: &str, path: &str) -> String {
     let file_text = File::open(path).expect("Err: failed to open the file");
     let reader = BufReader::new(file_text);
 
