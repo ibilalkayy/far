@@ -38,4 +38,8 @@ pub struct Far {
     /// Limit the search to files with extension (e.g. rs, txt)
     #[clap(long)]
     pub extension: Option<String>,
+
+    // Ignore the case distinctions in text
+    #[clap(long)]
+    pub ignore_case: bool,
 }
