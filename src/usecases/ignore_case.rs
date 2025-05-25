@@ -3,7 +3,7 @@ use std::{
     io::{BufRead, BufReader},
 };
 
-pub fn ignore_case(find_data: &str, path: &str) {
+pub fn ignore_case<'a>(find_data: &str, path: &str) -> String {
     let file_text = File::open(path).expect("Err: failed to open the file");
     let reader = BufReader::new(file_text);
 
@@ -12,8 +12,9 @@ pub fn ignore_case(find_data: &str, path: &str) {
 
         for word in line.split_whitespace() {
             if word.eq_ignore_ascii_case(find_data) {
-                println!("Match found: {}", word);
+                return word.to_string();
             }
         }
     }
+    return "".to_string();
 }

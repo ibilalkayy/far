@@ -78,7 +78,8 @@ impl Far {
     fn find_text(&self, path: &String) {
         if let Some(find) = &self.find {
             if self.ignore_case {
-                ignore_case(find, path);
+                let result_word = ignore_case(find, path);
+                self.handle_options(path, &result_word.to_lowercase());
                 return;
             }
 
