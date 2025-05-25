@@ -1,6 +1,9 @@
 use crate::{
     cli::command::command::Far,
-    usecases::{dry_run::dry_run_text, find::find_txt, regex::find_regex, replace::replace_text},
+    usecases::{
+        dry_run::dry_run_text, find::find_txt, ignore_case::ignore_case, regex::find_regex,
+        replace::replace_text,
+    },
 };
 use std::{
     fs::{self, File},
@@ -38,26 +41,15 @@ impl Far {
                     let mut text_ext = backup_file.split(".");
                     text_ext.next().unwrap();
                     let matched_word = text_ext.next().unwrap();
+                    let fetched_word = ext.replace(".", "");
 
-                    if ext.contains(".") {
-                        let fetched_word = ext.replace(".", "");
-                        if fetched_word == matched_word {
-                            self.handle_file_backup(backup_file);
-                        } else {
-                            println!(
-                                "Err: '{}' file extension didn't match with the extension that you gave",
-                                backup_file
-                            );
-                        }
+                    if fetched_word == matched_word {
+                        self.handle_file_backup(backup_file);
                     } else {
-                        if matched_word == ext {
-                            self.handle_file_backup(backup_file);
-                        } else {
-                            println!(
-                                "Err: '{}' file extension didn't match with the extension that you gave",
-                                backup_file
-                            );
-                        }
+                        println!(
+                            "Err: '{}' file extension didn't match with the extension that you gave",
+                            backup_file
+                        );
                     }
                 }
             } else {
@@ -66,7 +58,7 @@ impl Far {
             return;
         }
 
-        if self.confirm || self.dry_run {
+        if self.confirm || self.dry_run || self.ignore_case {
             if self.find.is_none() && self.regex.is_none() {
                 eprintln!("Err: --confirm or --dry-run requires either --find or --regex");
                 return;
@@ -85,6 +77,11 @@ impl Far {
 
     fn find_text(&self, path: &String) {
         if let Some(find) = &self.find {
+            if self.ignore_case {
+                ignore_case(find, path);
+                return;
+            }
+
             let text_found = find_txt(find, path);
             if text_found {
                 self.handle_options(path, find);
