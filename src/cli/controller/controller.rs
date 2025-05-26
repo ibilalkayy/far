@@ -1,8 +1,11 @@
 use crate::{
     cli::command::command::Far,
     usecases::{
-        dry_run::dry_run_text, find::find_txt, ignore_case::ignore_case, regex::find_regex,
-        replace::replace_text,
+        dry_run::dry_run_text,
+        find::find_txt,
+        ignore_case::ignore_case,
+        regex::find_regex,
+        replace::{replace_text, replace_text_in_file},
     },
 };
 use std::{
@@ -35,6 +38,11 @@ impl Far {
             return;
         }
 
+        if self.output.is_some() && (self.dry_run || self.confirm) {
+            eprintln!("Err: --output cannot be used with --dry-run or confirm");
+            return;
+        }
+
         if let Some(backup_file) = &self.backup {
             if let Some(ext) = &self.extension {
                 if let Some(backup_file) = &self.backup {
@@ -58,7 +66,7 @@ impl Far {
             return;
         }
 
-        if self.confirm || self.dry_run || self.ignore_case {
+        if self.confirm || self.dry_run || self.ignore_case || self.output.is_some() {
             if self.find.is_none() && self.regex.is_none() {
                 eprintln!("Err: --confirm or --dry-run requires either --find or --regex");
                 return;
@@ -98,13 +106,15 @@ impl Far {
         }
     }
 
-    fn handle_options(&self, path: &String, find_text: &String, case: bool) {
+    fn handle_options(&self, taken_path: &String, find_text: &String, case: bool) {
         let replace_txt = self.replace.as_ref().unwrap();
 
         if self.confirm {
-            replace_text(path, find_text, replace_txt, case);
+            replace_text(taken_path, find_text, replace_txt, case);
         } else if self.dry_run {
             self.handle_dry_run(replace_txt);
+        } else if let Some(target_path) = &self.output {
+            replace_text_in_file(taken_path, target_path, find_text, replace_txt, case);
         }
     }
 

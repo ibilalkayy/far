@@ -42,4 +42,7 @@ pub struct Far {
     /// Ignore the case distinctions in text
     #[clap(long)]
     pub ignore_case: bool,
+
+    #[clap(long)]
+    pub output: Option<String>,
 }
