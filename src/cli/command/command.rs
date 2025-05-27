@@ -17,7 +17,7 @@ pub struct Far {
 
     /// Mention the target path to find the text there
     #[clap(short, long)]
-    pub target: String,
+    pub target: Option<String>,
 
     /// Show the replaced text before writing it
     #[clap(long)]
@@ -35,14 +35,11 @@ pub struct Far {
     #[clap(long)]
     pub backup: Option<String>,
 
-    /// Limit the search to files with extension (e.g. rs, txt)
-    #[clap(long)]
-    pub extension: Option<String>,
-
     /// Ignore the case distinctions in text
     #[clap(long)]
     pub ignore_case: bool,
 
+    /// Store the modified text into another file
     #[clap(long)]
     pub output: Option<String>,
 }
