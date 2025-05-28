@@ -1,8 +1,8 @@
 use crate::{
     cli::command::command::Far,
     usecases::{
-        backup::file_backup, dry_run::dry_run_text, find::find_text, regex::find_regex,
-        replace::replace_text,
+        backup::file_backup, dry_run::dry_run_text, find::find_text, ignore_case::ignore_case,
+        regex::find_regex, replace::replace_text,
     },
 };
 
@@ -23,13 +23,18 @@ impl Far {
             return;
         }
 
-        if self.confirm && (self.dry_run || self.output.is_some()) {
-            eprintln!("Err: --confirm cannot be used with --dry-run or --output");
+        if self.confirm && (self.dry_run || self.output.is_some() || self.ignore_case) {
+            eprintln!("Err: --confirm cannot be used with --dry-run, --ignore-case or --output");
             return;
         }
 
         if self.output.is_some() && self.dry_run {
             eprintln!("Err: --output cannot be used with --dry-run");
+            return;
+        }
+
+        if self.output.is_some() && self.ignore_case {
+            eprintln!("Err: --output cannot be used with --ignore-case");
             return;
         }
 
@@ -63,6 +68,30 @@ impl Far {
                     if let Some(target) = &self.target {
                         file_backup(backup_file, target);
                         return;
+                    }
+                }
+            } else if self.ignore_case {
+                if self.find.is_none() && self.regex.is_none() {
+                    eprintln!("Err: --ignore-case requires either --find or --regex");
+                    return;
+                }
+                if self.replace.is_none() {
+                    eprintln!("Err: --ignore-case requires --replace");
+                    return;
+                }
+
+                if self.target.is_none() {
+                    eprintln!("Err: --ignore-case requires --target");
+                    return;
+                }
+
+                if let Some(find) = &self.find {
+                    if let Some(target) = &self.target {
+                        if let Some(replace) = &self.replace {
+                            let data = ignore_case(find, target);
+                            replace_text(target, target, &data, replace);
+                            return;
+                        }
                     }
                 }
             }

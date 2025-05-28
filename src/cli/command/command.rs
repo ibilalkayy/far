@@ -27,6 +27,10 @@ pub struct Far {
     #[clap(long)]
     pub backup: Option<String>,
 
+    /// Ignore the case while finding the data
+    #[clap(long)]
+    pub ignore_case: bool,
+
     /// Assure the text before replacing it
     #[clap(long)]
     pub confirm: bool,
