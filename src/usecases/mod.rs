@@ -1,3 +1,4 @@
+pub mod backup;
 pub mod dry_run;
 pub mod find;
 pub mod ignore_case;

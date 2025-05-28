@@ -1,10 +1,9 @@
 use crate::{
     cli::command::command::Far,
-    usecases::{dry_run::dry_run_text, find::find_text, regex::find_regex, replace::replace_text},
-};
-use std::{
-    fs::{self, File},
-    io::{Read, Write},
+    usecases::{
+        backup::file_backup, dry_run::dry_run_text, find::find_text, regex::find_regex,
+        replace::replace_text,
+    },
 };
 
 impl Far {
@@ -61,8 +60,10 @@ impl Far {
         } else {
             if self.backup.is_some() {
                 if let Some(backup_file) = &self.backup {
-                    self.handle_file_backup(backup_file);
-                    return;
+                    if let Some(target) = &self.target {
+                        file_backup(backup_file, target);
+                        return;
+                    }
                 }
             }
         }
@@ -117,37 +118,6 @@ impl Far {
             } else {
                 eprintln!("Err: failed to get the target");
             }
-        }
-    }
-
-    fn handle_file_backup(&self, backup_file: &String) {
-        let home_dir = dirs::home_dir().expect("Err: failed to get the home directory");
-        let joined_dir = home_dir.join("far");
-        let merge_path = joined_dir.join(backup_file);
-
-        if !joined_dir.exists() {
-            fs::create_dir(&joined_dir).expect("Err: failed to create the home directory");
-        }
-
-        if !merge_path.exists() {
-            if let Some(target) = &self.target {
-                let mut data_file =
-                    File::create_new(&merge_path).expect("Err: failed to create the file");
-                let mut data_result = File::open(target).expect("Err: failed to open the file");
-                let mut file_content = String::new();
-
-                data_result.read_to_string(&mut file_content).unwrap();
-                data_file
-                    .write(file_content.as_bytes())
-                    .expect("Err: failed to write into the file");
-
-                println!(
-                    "Backup data is successfully saved in the {:?} file",
-                    merge_path
-                );
-            }
-        } else {
-            eprintln!("Err: {:?} file already exists", merge_path);
         }
     }
 }
