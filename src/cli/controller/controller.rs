@@ -1,12 +1,6 @@
 use crate::{
     cli::command::command::Far,
-    usecases::{
-        dry_run::dry_run_text,
-        find::find_text,
-        ignore_case::ignore_case,
-        regex::find_regex,
-        replace::{replace_text, replace_text_in_file},
-    },
+    usecases::{dry_run::dry_run_text, find::find_text, regex::find_regex, replace::replace_text},
 };
 use std::{
     fs::{self, File},
@@ -16,23 +10,34 @@ use std::{
 impl Far {
     pub fn control_args(self) {
         if self.backup.is_some()
-            && (self.find.is_some() || self.replace.is_some() || self.dry_run || self.confirm)
+            && (self.find.is_some()
+                || self.regex.is_some()
+                || self.replace.is_some()
+                || self.dry_run
+                || self.confirm
+                || self.output.is_some())
         {
-            eprintln!(
-                "Err: --backup cannot be used with --find, --replace, --dry-run, or --confirm"
-            );
+            eprintln!("Err: --backup cannot be used with the given flags except --target");
+            return;
+        } else if self.backup.is_some() && self.target.is_none() {
+            eprintln!("Err: --backup requires the --target flag");
             return;
         }
 
-        if self.output.is_some() && (self.dry_run || self.confirm) {
-            eprintln!("Err: --output cannot be used with --dry-run or --confirm");
+        if self.confirm && (self.dry_run || self.output.is_some()) {
+            eprintln!("Err: --confirm cannot be used with --dry-run or --output");
             return;
         }
 
-        if self.confirm || self.dry_run || self.ignore_case || self.output.is_some() {
+        if self.output.is_some() && self.dry_run {
+            eprintln!("Err: --output cannot be used with --dry-run");
+            return;
+        }
+
+        if self.confirm || self.dry_run || self.output.is_some() {
             if self.find.is_none() && self.regex.is_none() {
                 eprintln!(
-                    "Err: --confirm, --dry-run, --ignore-case or --output requires either --find or --regex"
+                    "Err: --confirm, --dry-run or --output requires either --find or --regex"
                 );
                 return;
             }
@@ -41,75 +46,68 @@ impl Far {
                 return;
             }
 
+            if self.target.is_none() {
+                eprintln!("Err: --confirm, --dry-run or --output requires --target");
+                return;
+            }
+
             if let Some(target) = &self.target {
                 self.finding_options(target);
+                return;
             } else {
-                eprintln!(
-                    "Err: --replace, --preview, --ignore-case, --output or --backup requires --target"
-                );
+                eprintln!("Err: --replace, --dry-run, --output or --backup requires --target");
+                return;
             }
-            return;
-        } else if let Some(backup_file) = &self.backup {
-            self.handle_file_backup(backup_file);
-            return;
-        }
-
-        eprintln!(
-            "Err: no valid operation selected. Use --find, --replace, --backup, --dry-run, --confirm, --ignore-case or --output"
-        );
-    }
-
-    fn ignore_option(&self, path: &String, find: &String) {
-        if (self.ignore_case && self.confirm)
-            || (self.ignore_case && self.dry_run)
-            || (self.ignore_case && self.output.is_some())
-        {
-            let result_word = ignore_case(find, path);
-            self.actions(path, &result_word.to_lowercase(), true);
-            return;
         } else {
-            eprintln!("Err: Use --ignore-case with --confirm, --dry-run or --output");
+            if self.backup.is_some() {
+                if let Some(backup_file) = &self.backup {
+                    self.handle_file_backup(backup_file);
+                    return;
+                }
+            }
         }
+        eprintln!("Err: no valid operation selected. Write 'far --help' for more info");
     }
 
     fn finding_options(&self, path: &String) {
         if let Some(find) = &self.find {
-            self.ignore_option(path, find);
-
             let text_found = find_text(find, path);
             if text_found {
-                self.actions(path, find, false);
+                self.actions(path, find);
             } else {
-                eprintln!("Err: '{}' is not found in the given file", find);
+                eprintln!("Err: '{}' text is not found in a given file", find);
             }
         } else if let Some(regex) = &self.regex {
             if let Some(regex_text) = find_regex(regex, path) {
-                self.actions(path, &regex_text, false);
+                self.actions(path, &regex_text);
             } else {
-                eprintln!("Err: '{}' is not found in the given file", regex);
+                eprintln!(
+                    "Err: text with this expression '{}' is not found in a given file",
+                    regex
+                );
             }
         }
     }
 
-    fn actions(&self, taken_path: &String, find_text: &String, case: bool) {
+    fn actions(&self, inner_path: &String, find_text: &String) {
         let replace_txt = self.replace.as_ref().unwrap();
         if self.confirm {
-            replace_text(taken_path, find_text, replace_txt, case);
+            replace_text(inner_path, inner_path, find_text, replace_txt);
         } else if self.dry_run {
-            self.handle_dry_run(replace_txt, case);
-        } else if let Some(target_path) = &self.output {
-            replace_text_in_file(taken_path, target_path, find_text, replace_txt, case);
+            self.handle_dry_run(replace_txt);
+        } else if let Some(outer_path) = &self.output {
+            replace_text(inner_path, outer_path, find_text, replace_txt);
         }
     }
 
-    fn handle_dry_run(&self, replace_txt: &String, ignore_case: bool) {
+    fn handle_dry_run(&self, replace_txt: &String) {
         if self.target.is_some() {
             if let Some(target) = &self.target {
                 if let Some(find) = &self.find {
-                    dry_run_text(target, find, replace_txt, ignore_case);
+                    dry_run_text(target, find, replace_txt);
                 } else if let Some(regex) = &self.regex {
                     if let Some(regex_found) = find_regex(&regex, target) {
-                        dry_run_text(target, &regex_found, replace_txt, ignore_case);
+                        dry_run_text(target, &regex_found, replace_txt);
                     } else {
                         eprintln!("Err: '{}' is not found in the given file", regex);
                     }

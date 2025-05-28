@@ -11,6 +11,10 @@ pub struct Far {
     #[clap(short, long)]
     pub find: Option<String>,
 
+    /// Use expressions for finding the text
+    #[clap(short = 'e', long)]
+    pub regex: Option<String>,
+
     /// Write the text to be replaced with
     #[clap(short, long)]
     pub replace: Option<String>,
@@ -19,25 +23,17 @@ pub struct Far {
     #[clap(short, long)]
     pub target: Option<String>,
 
-    /// Show the replaced text before writing it
+    /// Include the files that are matching the globe pattern
     #[clap(long)]
-    pub dry_run: bool,
+    pub backup: Option<String>,
 
     /// Assure the text before replacing it
     #[clap(long)]
     pub confirm: bool,
 
-    /// Use expressions for finding the text
-    #[clap(short = 'e', long)]
-    pub regex: Option<String>,
-
-    /// Include the files that are matching the globe pattern
+    /// Show the replaced text before writing it
     #[clap(long)]
-    pub backup: Option<String>,
-
-    /// Ignore the case distinctions in text
-    #[clap(long)]
-    pub ignore_case: bool,
+    pub dry_run: bool,
 
     /// Store the modified text into another file
     #[clap(long)]

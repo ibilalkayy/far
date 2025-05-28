@@ -1,52 +1,67 @@
-use std::fs;
+use std::fs::{File, OpenOptions};
+use std::io::{Read, Write};
 
-use regex::RegexBuilder;
+// pub fn replace_text(path: &str, from: &str, to: &str) {
+//     let mut content = String::new();
+//     File::open(path)
+//         .expect("Err: file opening failed")
+//         .read_to_string(&mut content)
+//         .expect("Err: file reading failed");
 
-pub fn replace_text(taken_path: &str, from: &str, to: &str, ignore_case: bool) {
-    let content = fs::read_to_string(taken_path).unwrap();
+//     let new_content = content.replace(from, to);
 
-    let file_content = if ignore_case {
-        let replaced = RegexBuilder::new(from)
-            .case_insensitive(true)
-            .build()
-            .unwrap();
-        replaced.replace_all(&content, to).to_string()
-    } else {
-        content.replace(from, to)
-    };
+//     let mut file = OpenOptions::new()
+//         .write(true)
+//         .truncate(true)
+//         .open(path)
+//         .expect("Err: file opening for writing failed");
 
-    let status = fs::write(taken_path, file_content);
-    match status {
+//     match file.write_all(new_content.as_bytes()) {
+//         Ok(_) => println!("'{}' is successfully replaced with '{}'", from, to),
+//         Err(error) => eprintln!("Failure occurred while replacing the text: {}", error),
+//     }
+// }
+
+// pub fn replace_text_two(from_path: &str, to_path: &str, from: &str, to: &str) {
+//     let mut content = String::new();
+//     File::open(from_path)
+//         .expect("Err: file opening failed")
+//         .read_to_string(&mut content)
+//         .expect("Err: file reading failed");
+
+//     let new_content = content.replace(from, to);
+
+//     let mut file = OpenOptions::new()
+//         .create(true)
+//         .write(true)
+//         .truncate(true)
+//         .open(to_path)
+//         .expect("Err: file opening for writing failed");
+
+//     match file.write_all(new_content.as_bytes()) {
+//         Ok(_) => println!("'{}' is successfully replaced with '{}'", from, to),
+//         Err(error) => eprintln!("Failure occurred while replacing the text: {}", error),
+//     }
+// }
+
+pub fn replace_text(from_path: &str, to_path: &str, from: &str, to: &str) {
+    let mut content = String::new();
+    File::open(from_path)
+        .expect("Err: file opening failed")
+        .read_to_string(&mut content)
+        .expect("Err: file reading failed");
+
+    let new_content = content.replace(from, to);
+
+    let mut file = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .truncate(true)
+        .open(to_path)
+        .expect("Err: file opening for writing failed");
+
+    match file.write_all(new_content.as_bytes()) {
         Ok(_) => println!("'{}' is successfully replaced with '{}'", from, to),
-        Err(error) => eprintln!("Failure occurred while replacing the text: {}", error),
-    }
-}
-
-pub fn replace_text_in_file(
-    taken_path: &str,
-    target_path: &str,
-    from: &str,
-    to: &str,
-    ignore_case: bool,
-) {
-    let content = fs::read_to_string(taken_path).unwrap();
-
-    let file_content = if ignore_case {
-        let replaced = RegexBuilder::new(from)
-            .case_insensitive(true)
-            .build()
-            .unwrap();
-        replaced.replace_all(&content, to).to_string()
-    } else {
-        content.replace(from, to)
-    };
-
-    let status = fs::write(target_path, file_content);
-    match status {
-        Ok(_) => println!(
-            "'{}' is successfully replaced with '{}' in '{}'",
-            from, to, target_path
-        ),
         Err(error) => eprintln!("Failure occurred while replacing the text: {}", error),
     }
 }
