@@ -6,13 +6,13 @@
 
 ## ✨ Features
 
-* 🔍 **Find** text in files or entire folders
-* ✏️ **Replace** text easily and quickly
-* 🎯 **Target** specific files, directories, or use glob patterns like `**/*.rs`
-* 🔡 **Case-insensitive** search with `--ignore-case`
-* 📝 Optional **regex** support for advanced matching
-* 💾 Backup files with `--backup` (if needed)
-* 🚫 **Dry run** option to preview changes
+* 🔍 **Find** text in files or entire folders.
+* ✏️ **Replace** text easily and quickly.
+* 🎯 **Target** specific files, directories, or use glob patterns like `**/*.rs`.
+* 🔡 **Case-insensitive** search with `--ignore-case`.
+* 📝 Optional **regex** support for advanced matching.
+* 💾 Backup files with `--backup` (if needed).
+* 🚫 **Dry run** option to preview changes.
 
 ---
 
