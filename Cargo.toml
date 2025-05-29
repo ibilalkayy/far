@@ -2,7 +2,7 @@
 name = "fara"
 description = "Find And Replace App — a fast and flexible command-line tool to search and replace text across files and folders."
 repository = "https://github.com/ibilalkayy/fara"
-version = "0.1.20"
+version = "0.1.21"
 edition = "2024"
 license = "Apache-2.0"
 readme = "README.md"
