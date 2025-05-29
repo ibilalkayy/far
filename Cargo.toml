@@ -6,7 +6,7 @@ version = "0.1.20"
 edition = "2024"
 license = "Apache-2.0"
 readme = "README.md"
-categories = ["file search", "replace data", "backup"]
+categories = ["command-line-utilities"]
 keywords = ["file", "search", "find", "replace"]
 exclude = ["target/*"]
 
