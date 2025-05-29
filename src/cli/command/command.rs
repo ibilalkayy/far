@@ -4,9 +4,9 @@ use clap::Parser;
 #[clap(
     author = "Bilal Khan",
     version,
-    about = "far stands for Find And Replace — a fast, flexible command-line tool to search and replace text across files and folders."
+    about = "fara stands for Find And Replace Application — a fast, flexible command-line tool to search and replace text across files and folders."
 )]
-pub struct Far {
+pub struct Fara {
     /// Find the text to be changed
     #[clap(short, long)]
     pub find: Option<String>,

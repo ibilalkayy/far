@@ -5,7 +5,7 @@ use std::{
 
 pub fn file_backup(backup_file: &str, target: &str) {
     let home_dir = dirs::home_dir().expect("Err: failed to get the home directory");
-    let joined_dir = home_dir.join("far");
+    let joined_dir = home_dir.join("fara");
     let merge_path = joined_dir.join(backup_file);
 
     if !joined_dir.exists() {

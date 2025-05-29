@@ -29,7 +29,7 @@ Alternatively, clone the repository and build it manually:
 ```bash
 git clone https://github.com/ibilalkayy/fara.git
 cd fara
-cargo build --release
+cargo build && cargo install --path .
 ```
 
 ---
@@ -89,7 +89,7 @@ fara --find "welcome" --replace "Hello" --target "main.rs" --ignore-case
 ## 🤝 Contributing
 
 We welcome contributions!
-If you find a bug, want to request a feature, or contribute code, feel free to [open an issue](https://github.com/ibilalkayy/far/issues) or submit a pull request.
+If you find a bug, want to request a feature, or contribute code, feel free to [open an issue](https://github.com/ibilalkayy/fara/issues) or submit a pull request.
 
 ---
 

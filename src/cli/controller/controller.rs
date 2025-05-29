@@ -1,12 +1,12 @@
 use crate::{
-    cli::command::command::Far,
+    cli::command::command::Fara,
     usecases::{
         backup::file_backup, dry_run::dry_run_text, find::find_text, ignore_case::ignore_case,
         regex::find_regex, replace::replace_text,
     },
 };
 
-impl Far {
+impl Fara {
     pub fn control_args(self) {
         if self.backup.is_some()
             && (self.find.is_some()
@@ -96,7 +96,7 @@ impl Far {
                 }
             }
         }
-        eprintln!("Err: no valid operation selected. Write 'far --help' for more info");
+        eprintln!("Err: no valid operation selected. Write 'fara --help' for more info");
     }
 
     fn finding_options(&self, path: &String) {

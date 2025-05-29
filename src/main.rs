@@ -2,10 +2,10 @@ mod cli;
 mod usecases;
 
 use clap::Parser;
-use cli::command::command::Far;
+use cli::command::command::Fara;
 
 fn main() {
-    let args = Far::parse();
+    let args = Fara::parse();
     args.control_args();
 }
 // Hello world this is it
